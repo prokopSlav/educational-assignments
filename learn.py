@@ -36,3 +36,29 @@ class CardCheck:
         else:
             return False
 
+
+"""Задание: объявить класс Money с проверкой принимаемых значений по условиям(int and >=0)
++ функция сложения значения money из одного объекта класса со значением другого объекта класса."""
+class Money:
+    def __init__(self, money):
+        self.__money = money
+
+    @classmethod
+    def __check_money(cls, money):
+        if type(money) == int:
+            if money >= 0:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def set_money(self, money):
+        if self.__check_money(money) is True:
+            self.__money = money
+
+    def get_money(self):
+        return self.__money
+
+    def add_money(self, mn):
+        self.__money += mn.__money
