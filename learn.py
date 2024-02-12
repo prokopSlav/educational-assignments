@@ -183,7 +183,7 @@ class EmailValidator:
         if cls.check_email(email) is True:
             return email
         else:
-            cls.get_random_email()
+            return cls.get_random_email()
 
 
 
