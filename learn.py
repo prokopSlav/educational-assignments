@@ -1,40 +1,50 @@
 """Задание: написать класс с функциями, проверяющими передаваемые данные с пластиковых карт.
 Формат ХХХХ-ХХХХ-ХХХХ-ХХХХ для номера карты и строка с именем и фамилей, разделенной через пробел."""
 
-
 from string import ascii_lowercase, digits
+from typing import List
 
 
 class CardCheck:
+    """Class check card number and name."""
+
     CHARS_FOR_NAME = ascii_lowercase.upper() + digits
 
     @staticmethod
-    def check_card_number(number):
-        number = number.split('-')
-        try:
-            x = [i for i in number if type(int(i)) is int and len(i) == 4]
-            if len(x) == 4:
-                return True
+    def check_card_number(number: str) -> bool:
+        numbers: List[str] = number.split('-')
+        for count, nums in enumerate(numbers):
+            if nums.isdigit() and (len(nums) == 4) and (count < 4):
+                continue
             else:
                 return False
-        except ValueError:
-            return False
+        if count == 3:
+           return True
+        return False
 
     @staticmethod
-    def check_name(name):
-        name = name.split(' ')
-        result = []
-        if len(name) == 2:
-            for i in name:
-                x = set(i).issubset(CardCheck.CHARS_FOR_NAME)
-                result.append(x)
-
-            if all(result) is True:
-                return True
+    def check_name(name: str) -> bool:
+        full_name = name.split(' ')
+        
+        for count, name in enumerate(full_name):
+            if (
+                name.isalpha()
+              and (set(name).issubset(CardCheck.CHARS_FOR_NAME))
+              and (count < 2)
+            ):
+              continue
             else:
-                return False
-        else:
-            return False
+              return False
+        if count == 1:
+            return True
+        return False
+
+
+if __name__ == '__main__':
+
+    is_number = CardCheck.check_card_number("1234-5678-9012-0000")
+    is_name = CardCheck.check_name("SERGEI BALAKIREV")
+    print(is_number, is_name)
 
 
 """Задание: объявить класс Money с проверкой принимаемых значений по условиям(int and >=0)
