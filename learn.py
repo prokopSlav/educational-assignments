@@ -149,11 +149,10 @@ class EmailValidator:
     def check_email(cls, email):
 
         def check_point(x):
-            for i in range(len(x)):
-                if x[i] == '.' and x[i+1] == '.':
-                    return False
+            if '..' in x:
+                return False
 
-        if not isinstance(email, str):
+        if cls.__is_email_str(email) is False:
             return False
 
         if not set(email).issubset(cls.symbol):
