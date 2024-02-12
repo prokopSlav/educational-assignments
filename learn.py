@@ -114,3 +114,80 @@ c, d = ep.get_coords()
 assert a == 1 and b == 2 and c == 3 and d == 4, "метод get_coords вернул неверные значения координат"
 
 assert isinstance(r._Rectangle__sp, Point) and isinstance(r._Rectangle__ep, Point), "атрибуты __sp и __ep должны ссылаться на объекты класса Point"
+
+
+
+
+
+from random import choices, randint
+from string import digits, ascii_letters
+
+"""Задача: реализовать класс для проверки валидности email.
+    Условия:
+- допустимые символы: латинский алфавит, цифры, символы подчеркивания, точки и собачка @ (одна);
+- длина email до символа @ не должна превышать 100 (сто включительно);
+- длина email после символа @ не должна быть больше 50 (включительно);
+- после символа @ обязательно должна идти хотя бы одна точка;
+- не должно быть двух точек подряд.
+   Так же необходимо реализовать метод get_random_email для рандомной генерации email."""
+
+
+class EmailValidator:
+    symbol = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@._"
+
+    def __new__(cls, *args, **kwargs):
+        return None
+
+    @staticmethod
+    def __is_email_str(email):
+        if isinstance(email, str):
+            return True
+        else:
+            return False
+
+    @classmethod
+    def check_email(cls, email):
+
+        def check_point(x):
+            for i in range(len(x)):
+                if x[i] == '.' and x[i+1] == '.':
+                    return False
+
+        if not isinstance(email, str):
+            return False
+
+        if not set(email).issubset(cls.symbol):
+            return False
+
+        if email.count('@') != 1:
+            return False
+
+        email = email.split('@')
+        if len(email[0]) > 100 or len(email[1]) > 50:
+            return False
+
+        if email[1].count('.') < 1:
+            return False
+
+        if check_point(email[0]) is False or check_point(email[1]) is False:
+            return False
+
+        else:
+            return True
+
+    @classmethod
+    def get_random_email(cls):
+        my_symbol = f"{digits}{ascii_letters}._"
+        email = f"{''.join(choices(my_symbol, k=randint(1, 100)))}@" \
+                f"{''.join(choices(my_symbol, k=randint(1, 50)))}.com"
+        if cls.check_email(email) is True:
+            return email
+        else:
+            cls.get_random_email()
+
+
+
+
+
+
+
