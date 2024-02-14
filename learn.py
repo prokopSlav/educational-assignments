@@ -195,6 +195,53 @@ class EmailValidator:
             return cls.get_random_email()
 
 
+"""Тестовый код для наглядного примера, что происходит при создании/обращении к атрибутам объектов класса,
+если использовать режимы public, protected(при помощи descriptor) и private(при помощи property)"""
+
+
+class Descriptor:
+    def __set_name__(self, owner, name):
+        self.name = "_" + name
+
+    def __get__(self, instance, owner):
+        return instance.__dict__[self.name]
+
+    def __set__(self, instance, value):
+        print(f"{self.name}={value}")
+        instance.__dict__[self.name] = value
+
+
+class Test:
+
+    data = Descriptor()
+
+    def __init__(self, data):
+        self.__data = data
+
+    # Для наглядности следующие строки класса советуется закомментировать и посмотреть, что происходит с ними/без них.
+    @property
+    def data(self):
+        return self.__data
+
+    @data.setter
+    def data(self, data):
+        self.__data = data
+
+
+test = Test('Test')
+print(test.__dict__)
+test.data = 'Hahaha'
+print(test.__dict__)
+print('При использовании @property менялся бы атрибут объекта класса с именем _Test__data, а не создавался новый.')
+print('Без property:{"_Test__data": "Test", "_data": "Hahaha"}\n')
+test.__dict__['data'] = 'data in test'
+print(f'Несмотря на внешне одинаковое имя при создании "вручную" атрибута data(222 строка) '
+      f'он не изменяет ни атрибуты protected,\nсозданые при помощи descriptor, '
+      f'ни атрибуты private(создаваемые при иниализации объекта класса)\n')
+test.data = 'Hihihi'
+print('Итоговый результат без использования property:\n'
+      '{"_Test__data": "Test", "_data": "Hihihi", "data": "data in test"}')
+print(f"Итоговый результат при использовании property:\n{test.__dict__}")
 
 
 
