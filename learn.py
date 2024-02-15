@@ -298,4 +298,51 @@ class SuperShop:
 
 
 
+"""Задача: реализовать класс Product с использованием дандерметодов и валидацией данных внутри них."""
+
+from typing import Union
+
+
+class Shop:
+    def __init__(self, name):
+        self.name = name
+        self.goods = list()
+
+    def add_product(self, product):
+        self.goods.append(product)
+
+    def remove_product(self, product):
+        self.goods.remove(product)
+
+
+class Product:
+    id = 0
+
+    def __new__(cls, *args, **kwargs):
+        if cls.id > -1:
+            cls.id += 1
+        return super().__new__(cls)
+
+    def __init__(self, name: str, weight: Union[int, float], price: Union[int, float]) -> None:
+        self.id = self.id
+        self.name = name
+        self.weight = weight
+        self.price = price
+
+    def __setattr__(self, key, value):
+        """Метод валидирует типы входящих значений атрибутов объекта."""
+        error_msg = "Неверный тип присваиваемых данных."
+        if key == 'name' and not isinstance(value, str):
+            raise TypeError(error_msg)
+
+        if key in ('weight', 'price'):
+            if not isinstance(value, (int, float)) or value < 0:
+                raise TypeError(error_msg)
+
+        self.__dict__[key] = value
+
+    def __delattr__(self, item):
+        if item == 'id':
+            raise AttributeError("Атрибут id удалять запрещено.")
+
 
