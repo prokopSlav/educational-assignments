@@ -346,3 +346,82 @@ class Product:
             raise AttributeError("Атрибут id удалять запрещено.")
 
 
+"""Задание: сделать систему управления фильтрами. 3 класса с фильтрами для воды, один класс общий блок фильтров.
+   Условия для общего блока: 
+   1) все фильтры должны быть в строго своих "отсеках
+   2) реализовать функцию для старта/стопа воды, которая проверяет наличие всех трех фильтров + их срок службы.
+   Условия для фильтров:
+   1) Свойства .__date не должны менять при попытке их изменить. Ошибки при попытке изменения генерироваться не должны.""""
+
+import time
+
+class Mechanical:
+    def __init__(self, date=None):
+        self.__date = date
+
+    @property
+    def date(self):
+        return self.__date
+
+    @date.setter
+    def date(self, value):
+        self.__date = self.__date
+
+
+class Aragon:
+    def __init__(self, date=None):
+        self.__date = date
+
+    @property
+    def date(self):
+        return self.__date
+
+    @date.setter
+    def date(self, value):
+        self.__date = self.__date
+
+
+class Calcium:
+    def __init__(self, date=None):
+        self.__date = date
+
+    @property
+    def date(self):
+        return self.__date
+
+    @date.setter
+    def date(self, value):
+        self.__date = self.__date
+
+
+class GeyserClassic:
+    MAX_DATE_FILTER = 100
+    filters = {1: Mechanical, 2: Aragon, 3: Calcium}
+    result = {1: None, 2: None, 3: None}
+
+    def add_filter(self, slot_num, filter):
+        if self.filters[slot_num] == filter.__class__ and self.result[slot_num] is None:
+            self.result[slot_num] = filter
+
+    def remove_filter(self, slot_num):
+        self.result[slot_num] = None
+
+    def get_filters(self):
+        return self.result[1], self.result[2], self.result[3]  # Как упростить?
+
+    def check_date(self):  # Да простят меня Боги за этот гавнокод...
+        _ = []
+        if all(self.get_filters()):
+            for i in range(1, len(self.result) + 1):
+                if 0 <= (time.time() - self.result[i].date) <= 100:
+                    _.append(True)
+                else:
+                    _.append(False)
+        if all(_):
+            return True
+        return False
+
+    def water_on(self):
+        if all(self.get_filters()) and self.check_date():
+            return True
+        return False
