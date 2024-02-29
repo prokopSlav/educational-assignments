@@ -355,7 +355,9 @@ class Product:
 
 import time
 
-class Mechanical:
+
+class Filter:
+
     def __init__(self, date=None):
         self.__date = date
 
@@ -365,63 +367,50 @@ class Mechanical:
 
     @date.setter
     def date(self, value):
-        self.__date = self.__date
+        ...
 
 
-class Aragon:
-    def __init__(self, date=None):
-        self.__date = date
+class Mechanical(Filter):
 
-    @property
-    def date(self):
-        return self.__date
-
-    @date.setter
-    def date(self, value):
-        self.__date = self.__date
+    ...
 
 
-class Calcium:
-    def __init__(self, date=None):
-        self.__date = date
+class Aragon(Filter):
 
-    @property
-    def date(self):
-        return self.__date
+    ...
 
-    @date.setter
-    def date(self, value):
-        self.__date = self.__date
+
+class Calcium(Filter):
+
+    ...
 
 
 class GeyserClassic:
+    """Класс управления фильтрами и водой."""
+
     MAX_DATE_FILTER = 100
-    filters = {1: Mechanical, 2: Aragon, 3: Calcium}
+    slots = {1: Mechanical, 2: Aragon, 3: Calcium}
     result = {1: None, 2: None, 3: None}
 
-    def add_filter(self, slot_num, filter):
-        if self.filters[slot_num] == filter.__class__ and self.result[slot_num] is None:
+    def add_filter(self, slot_num: int, filter: Filter) -> None:
+        """Функция добавления фильтра в гейзер."""
+        if self.slots[slot_num] == filter.__class__ and self.result[slot_num] is None:
             self.result[slot_num] = filter
 
-    def remove_filter(self, slot_num):
+    def remove_filter(self, slot_num: int) -> None:
+        """Функция удаления фильтра из гейзера."""
         self.result[slot_num] = None
 
-    def get_filters(self):
-        return self.result[1], self.result[2], self.result[3]  # Как упростить?
+    def get_filters(self) -> tuple:
+        """Полученеи кортежа установленных фильтров."""
+        mechanical, aragon, calcium = self.result.values()
+        return mechanical, aragon, calcium
 
-    def check_date(self):  # Да простят меня Боги за этот гавнокод...
-        _ = []
-        if all(self.get_filters()):
-            for i in range(1, len(self.result) + 1):
-                if 0 <= (time.time() - self.result[i].date) <= 100:
-                    _.append(True)
-                else:
-                    _.append(False)
-        if all(_):
-            return True
-        return False
-
-    def water_on(self):
-        if all(self.get_filters()) and self.check_date():
-            return True
-        return False
+    def water_on(self) -> bool:
+        """Функция включения воды."""
+        for index, value in enumerate(self.get_filters()):
+            if not value:
+                return False
+            if not (0 <= (time.time() - self.result[index+1].date) <= self.MAX_DATE_FILTER):
+                return False
+        return True
