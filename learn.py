@@ -414,3 +414,127 @@ class GeyserClassic:
             if not (0 <= (time.time() - self.result[index+1].date) <= self.MAX_DATE_FILTER):
                 return False
         return True
+
+
+
+
+"""Реализация базовой логики игры в сапер без взаимодействия в консоли."""
+
+import copy
+import random
+
+
+class Cell:
+    """Класс, определяющий модель каждой клетки игры в Сапёр."""
+
+    def __init__(self) -> None:
+        """Создание клетки поля с базовыми параметрами."""
+        self.__is_mine = False
+        self.__number = 0
+        self.__is_open = False
+
+    @property
+    def is_mine(self) -> bool:
+        return self.__is_mine
+
+    @is_mine.setter
+    def is_mine(self, mine: bool) -> None:
+        if not isinstance(mine, bool):
+            raise ValueError("недопустимое значение атрибута")
+        self.__is_mine = mine
+
+    @property
+    def number(self) -> int:
+        return self.__number
+
+    @number.setter
+    def number(self, new_number: int) -> None:
+        if not 0 <= new_number <= 8:
+            raise ValueError("недопустимое значение атрибута")
+        self.__number = new_number
+
+    @property
+    def is_open(self) -> bool:
+        return self.__is_open
+
+    @is_open.setter
+    def is_open(self, open: bool) -> None:
+        if not isinstance(open, bool):
+            raise ValueError("недопустимое значение атрибута")
+        self.__is_open = open
+
+    def __bool__(self) -> bool:
+        """Проверка на открытую или закрытую клетку."""
+        return True if self.__is_open is False else False
+
+
+class GamePole:
+    """Класс, моделирующий поведение игрового поля в Сапёр."""
+    _instance = None
+
+    def __new__(cls, *args, **kwargs) -> object:
+        """Метод для реализации паттерна Singleton."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self, N: int, M: int, total_mines: int) -> None:
+        """Метод для инициализации игрового поля по паметрам высоты, ширины и количества мин на поле."""
+        self.N = N
+        self.M = M
+        self.total_mines = total_mines
+        self.__pole_cells = [[Cell() for i in range(self.M)] for j in range(self.N)]
+
+    @property
+    def pole(self) -> list:
+        """Получение ссылки на матрицу с игровым полем."""
+        return self.__pole_cells
+
+    def init_pole(self) -> None:
+        """Функция для старта новой игры.
+           Заполнение поля минами и определние количества мин для каждой клетки."""
+        _mines = set()
+        while len(_mines) < self.total_mines:
+            random_cell = random.choice(random.choice(self.__pole_cells))
+            random_cell.is_mine = True
+            _mines.add(random_cell)
+        for i in self.__pole_cells:
+            for j in i:
+                j.is_open = False
+        for index_row, row in enumerate(self.__pole_cells):
+            for index_column, column in enumerate(row):
+                self.search_mines(index_row, index_column)
+
+    def open_cell(self, x: int, y: int) -> None:
+        """Функция, проверяющая корректность индекса выборанной клетки.
+        Если клетка существует, она становится открытой."""
+        if x >= self.N or y >= self.M:
+            raise IndexError('некорректные индексы i, j клетки игрового поля')
+        self.__pole_cells[x][y].is_open = True
+        self.search_mines(x, y)
+
+    def show_pole(self) -> None:
+        """Визуальное представление игрового поля в консоли."""
+        copy_pole = copy.deepcopy(self.__pole_cells)
+        for index_i, i in enumerate(copy_pole):
+            for index_j, j in enumerate(i):
+                if not j.is_open:
+                    copy_pole[index_i][index_j] = '?'
+                if j.is_open:
+                    copy_pole[index_i][index_j] = j.number
+                if j.is_mine:
+                    copy_pole[index_i][index_j] = '*'
+        for i in copy_pole:
+            print(*i)
+
+    def search_mines(self, x: int, y: int) -> None:  # написать свою реализацию через метод скользящего окна
+        """Функция поиска мин в радиусе одной клетки от выбранной клетки."""
+        count = 0
+        for k in range(-1, 2):
+            for l in range(-1, 2):
+                ii, jj = k + y, l + x
+                if ii < 0 or ii > self.M-1 or jj < 0 or jj > self.N-1:
+                    continue
+                if self.__pole_cells[jj][ii].is_mine:
+                    count += 1
+        self.__pole_cells[x][y].number = count
