@@ -538,3 +538,55 @@ class GamePole:
                 if self.__pole_cells[jj][ii].is_mine:
                     count += 1
         self.__pole_cells[x][y].number = count
+
+
+
+"""Игра в крестики-нолики."""
+
+class TicTacToe:
+    """Класс, моделирующий поведение игрового поля для игры в крестики-нолики."""
+
+    def __init__(self) -> None:
+        """Создание игрового поля для игры в крестики-нолики."""
+        self.pole = tuple([Cell() for _ in range(3)] for _ in range(3))
+
+    def __getitem__(self, item: tuple) -> any((tuple, int)):
+        """Функция для показа значений строк/столбцов или клеток игрового поля."""
+        if slice(None) in item:
+            if isinstance(item[0], int):
+                return tuple(i.value for i in self.pole[item[0]])
+            else:
+                column = []
+                for row in self.pole:
+                    column.append(row[item[1]].value)
+                return tuple(column)
+        else:
+            return self.pole[item[0]][item[1]].value
+
+    def __setitem__(self, key: tuple, value: int) -> None:
+        """Запись значения в игровое поле. 1 = нолик, 2 = крестик."""
+        if key[0] > 2 or key[1] > 2 or not isinstance(key[0], int) or not isinstance(key[1], int):
+            raise IndexError('неверный индекс клетки')
+        if not bool(self.pole[key[0]][key[1]]):
+            raise ValueError('клетка уже занята')
+        else:
+            self.pole[key[0]][key[1]].is_free = False
+            self.pole[key[0]][key[1]].value = value
+
+    def clear(self) -> None:
+        """Функция очистки игрового поля."""
+        self.__init__()
+
+    def show(self) -> list:
+        """Функция показа игрового поля."""
+        return [[i.value for i in j] for j in self.pole]
+
+
+class Cell:
+    """Класс для описания ячейки игрового поля."""
+    def __init__(self) -> None:
+        self.is_free = True
+        self.value = 0
+
+    def __bool__(self) -> bool:
+        return self.is_free
