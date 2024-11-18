@@ -590,3 +590,57 @@ class Cell:
 
     def __bool__(self) -> bool:
         return self.is_free
+
+
+
+
+"""Задание из курса по ООП 3.8.12"""
+
+class Cell:
+    """Класс, для хранеения данных из ячеек таблиц."""
+    def __init__(self, value: any) -> None:
+        self.value = value
+
+
+class SparseTable:
+    """Класс, моделирующий поведение таблицы."""
+    def __init__(self) -> None:
+        self.rows = 0
+        self.cols = 0
+        self.data = dict()
+
+    def add_data(self, row: int, col: int, data: Cell) -> None:
+        """Добавление новой ячейки в таблицу."""
+        self.data[(row, col)] = data
+        self.check_table()
+
+    def remove_data(self, row: int, col: int) -> None:
+        """Удаление ячейки из таблицы."""
+        if (row, col) not in self.data:
+            raise IndexError('ячейка с указанными индексами не существует')
+        self.data.pop((row, col))
+        self.check_table()
+
+    def __getitem__(self, item: tuple):
+        """Получение данных из существующей ячейки."""
+        if item not in self.data:
+            raise ValueError('данные по указанным индексам отсутствуют')
+        return self.data[item].value
+
+    def __setitem__(self, key: tuple, value: any):
+        """Запись или изменение данных в таблице."""
+        if key in self.data:
+            self.data[key].value = value
+        else:
+            self.data[key] = Cell(value)
+            self.check_table()
+
+    def check_table(self) -> None:
+        """Расчет максимального размера таблицы."""
+        rows, cols = [], []
+        for i in self.data:
+            rows.append(i[0])
+            cols.append(i[1])
+
+        self.rows, self.cols = max(rows)+1, max(cols)+1
+        
