@@ -642,5 +642,128 @@ class SparseTable:
             rows.append(i[0])
             cols.append(i[1])
 
+
+
+"""Реализация игры в крестики-нолики с компьютером."""
+
+import random
+
+
+class Cell:
+    """Класс для описания ячейки игрового поля."""
+    def __init__(self) -> None:
+        self.value = 0
+
+    def __bool__(self) -> bool:
+        return not bool(self.value)
+
+
+class TicTacToe:
+    """Класс, моделирующий поведение игрового поля для игры в крестики-нолики."""
+    FREE_CELL = 0  # свободная клетка
+    HUMAN_X = 1  # крестик (игрок - человек)
+    COMPUTER_O = 2  # нолик (игрок - компьютер)
+
+    def __init__(self) -> None:
+        """Создание игрового поля для игры в крестики-нолики."""
+        self.pole = tuple([Cell() for _ in range(3)] for _ in range(3))
+        self.count_step = 0
+        self.__is_draw = False
+        self.__is_computer_win = False
+        self.__is_human_win = False
+
+    def __getitem__(self, item: tuple) -> any((tuple, int)):
+        """Функция для показа значений клеток игрового поля."""
+        if self.check_index(item[0]) and self.check_index(item[1]):
+            return self.pole[item[0]][item[1]].value
+
+    def __setitem__(self, key: tuple, value: int) -> None:
+        """Запись значения в игровое поле. 1 = крестик, 2 = нолик."""
+        if self.check_index(key[0]) and self.check_index(key[1]):
+            if bool(self.pole[key[0]][key[1]]):
+                self.pole[key[0]][key[1]].value = value
+                self.check_win()
+                if self.count_step == 9 and not self.check_win():
+                    self.is_draw = True
+
+    def __bool__(self):
+        if True in (self.__is_draw, self.__is_human_win, self.__is_computer_win):
+            return False
+        return True
+
+    @property
+    def is_draw(self):
+        return self.__is_draw
+
+    @is_draw.setter
+    def is_draw(self, new):
+        self.__is_draw = new
+
+    @property
+    def is_computer_win(self):
+        return self.__is_computer_win
+
+    @is_computer_win.setter
+    def is_computer_win(self, new):
+        self.__is_computer_win = new
+
+    @property
+    def is_human_win(self):
+        return self.__is_human_win
+
+    @is_human_win.setter
+    def is_human_win(self, new):
+        self.__is_human_win = new
+
+    @staticmethod
+    def check_index(index):
+        if 0 <= index < 3 and isinstance(index, int):
+            return True
+        raise IndexError('некорректно указанные индексы')
+
+    def init(self) -> None:
+        """Функция для запуска игры."""
+        self.__init__()
+
+    def show(self) -> list:
+        """Функция показа игрового поля."""
+        return [[i.value for i in j] for j in self.pole]
+
+    def human_go(self) -> None:
+        """Функция для хода игрока."""
+        self.count_step += 1
+        self.__setitem__(tuple(int(i) for i in input().split(' ')), self.HUMAN_X)
+
+    def computer_go(self) -> None:
+        """Функция для хода компьютера."""
+        self.count_step += 1
+        _ = (0, 1, 2)
+        row, col = random.choice(_), random.choice(_)
+        if bool(self.pole[row][col]):
+            self.__setitem__((row, col), self.COMPUTER_O)
+            return
+        else:
+            self.computer_go()
+
+    def check_win(self):
+        check_list = [set([self.pole[0][0].value, self.pole[0][1].value, self.pole[0][2].value]),
+                      set([self.pole[1][0].value, self.pole[1][1].value, self.pole[1][2].value]),
+                      set([self.pole[2][0].value, self.pole[2][1].value, self.pole[2][2].value]),
+                      set([self.pole[0][0].value, self.pole[1][0].value, self.pole[2][0].value]),
+                      set([self.pole[0][1].value, self.pole[1][1].value, self.pole[2][1].value]),
+                      set([self.pole[0][2].value, self.pole[1][2].value, self.pole[2][2].value]),
+                      set([self.pole[0][0].value, self.pole[1][1].value, self.pole[2][2].value]),
+                      set([self.pole[0][2].value, self.pole[1][1].value, self.pole[2][0].value])]
+
+        if {1} in check_list:
+            self.__is_human_win = True
+            return
+        if {2} in check_list:
+            self.__is_computer_win = True
+            return
+        else:
+            return
+
+
         self.rows, self.cols = max(rows)+1, max(cols)+1
         
